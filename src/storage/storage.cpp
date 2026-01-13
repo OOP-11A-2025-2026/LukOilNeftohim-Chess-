@@ -1,11 +1,4 @@
-#ifndef STORAGE_HPP
-#define STORAGE_HPP
-
-
-#include <fstream>
-#include <string>
-#include <iostream>
-#include <vector>
+#include <storage.hpp>
 
 void writefile( std::string filename,  std::string text)
 {
@@ -51,5 +44,3 @@ void writefile( std::string filename,  std::string text)
 
     return moves;
 }
-
-#endif
