@@ -1,4 +1,9 @@
-#include <storage.hpp>
+#include "chess/storage/storage.hpp"
+#include <fstream>
+#include <iostream>
+#include <vector>
+#include <string>
+#include <cctype>
 
 void writefile( std::string filename,  std::string text)
 {
