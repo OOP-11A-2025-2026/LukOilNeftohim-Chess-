@@ -204,7 +204,7 @@ namespace chess
         if (info.captured_piece != make_piece(NONE, WHITE))
             place_piece(board, to, info.captured_piece);
 
-            board.castling_rights = info.castling_rights;
+        board.castling_rights = info.castling_rights;
         board.en_passant_file = info.en_passant_file;
         board.halfmove_clock = info.halfmove_clock;
         board.hash = info.hash;
@@ -371,7 +371,7 @@ namespace chess
         if (get_pawn_attacks(square, by_color) & board.pieces_bb[PAWN] & board.colors_bb[by_color])
             return true;
 
-        if (get_king_attacks(square) & board.pieces_bb[KNIGHT] & board.colors_bb[by_color])
+        if (get_knight_attacks(square) & board.pieces_bb[KNIGHT] & board.colors_bb[by_color])
             return true;
 
         if ((get_bishop_attacks(square, board.occupied) & (board.pieces_bb[BISHOP] | board.pieces_bb[QUEEN])) & board.colors_bb[by_color])
@@ -390,7 +390,7 @@ namespace chess
     {
 
         Bitboard king_bb = board.pieces_bb[KING] & board.colors_bb[board.side_to_move];
-        if (king_bb)
+        if (!king_bb)
             return false;
 
         uint8_t king_square = lsb(king_bb);
