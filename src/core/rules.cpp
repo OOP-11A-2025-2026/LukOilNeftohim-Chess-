@@ -40,8 +40,26 @@ namespace chess
             switch (pt)
             {
             case PAWN:
-                targets = get_pawn_attacks(from, side_to_move) & ~board.colors_bb[side_to_move];
+            {
+                int dir = (side_to_move == WHITE) ? 8 : -8;
+                int start_rank = (side_to_move == WHITE) ? 1 : 6;
+
+                uint8_t to = from + dir;
+                if (to < 64 && !(board.occupied & (1ULL << to)))
+                {
+                    targets |= 1ULL << to;
+
+                    if ((from / 8) == start_rank)
+                    {
+                        uint8_t to2 = from + 2 * dir;
+                        if (!(board.occupied & (1ULL << to2)))
+                            targets |= 1ULL << to2;
+                    }
+                }
+
+                targets |= get_pawn_attacks(from, side_to_move) & board.colors_bb[opposite_color(side_to_move)];
                 break;
+            }
             case KNIGHT:
                 targets = get_knight_attacks(from) & ~board.colors_bb[side_to_move];
                 break;
@@ -78,7 +96,7 @@ namespace chess
 
         for (uint8_t from = 0; from < 64; from++)
         {
-            if (!(board.occupied * (1ULL << from)))
+            if (!(board.occupied & (1ULL << from)))
                 continue;
 
             uint8_t piece = piece_at(board, from);
@@ -92,7 +110,8 @@ namespace chess
             switch (pt)
             {
             case PAWN:
-                targets = get_pawn_attacks(from, side);
+                targets = get_pawn_attacks(from, side) & board.colors_bb[enemy];
+                break;
             case KNIGHT:
                 targets = get_knight_attacks(from) & board.colors_bb[enemy];
                 break;
@@ -127,7 +146,13 @@ namespace chess
             return false;
 
         BoardState copy = board;
+
+        Color mover = board.side_to_move;
+
         make_move(copy, move);
+
+        copy.side_to_move = mover;
+
         return !is_in_check(copy);
     }
 
@@ -141,9 +166,6 @@ namespace chess
 
         uint8_t piece = piece_at(board, from);
         if (piece_color(piece) != board.side_to_move)
-            return false;
-
-        if (board.colors_bb[board.side_to_move])
             return false;
 
         return true;
@@ -183,37 +205,48 @@ namespace chess
         if (board.pieces_bb[PAWN] || board.pieces_bb[ROOK] || board.pieces_bb[QUEEN])
             return false;
 
-        int bishops = pop_count(board.pieces_bb[BISHOP]);
-        int knights = pop_count(board.pieces_bb[KNIGHT]);
+        int white_bishops = pop_count(board.pieces_bb[BISHOP] & board.colors_bb[WHITE]);
+        int black_bishops = pop_count(board.pieces_bb[BISHOP] & board.colors_bb[BLACK]);
+        int white_knights = pop_count(board.pieces_bb[KNIGHT] & board.colors_bb[WHITE]);
+        int black_knights = pop_count(board.pieces_bb[KNIGHT] & board.colors_bb[BLACK]);
 
-        if (bishops == 0 && knights == 0)
+        if (white_bishops + black_bishops + white_knights + black_knights == 0)
             return true;
 
-        if (bishops + knights == 1)
+        if (white_bishops + white_knights == 1 && black_bishops + black_knights == 0)
+            return true;
+        if (black_bishops + black_knights == 1 && white_bishops + white_knights == 0)
             return true;
 
-        if (knights == 2 && bishops == 0)
+        if ((white_knights == 2 && black_bishops + black_knights == 0) ||
+            (black_knights == 2 && white_bishops + white_knights == 0))
             return true;
 
-        if (bishops >= 2 && knights == 0)
+        auto all_bishops_same_color = [](Bitboard bb) -> bool
         {
-            Bitboard bb = board.pieces_bb[BISHOP];
+            if (!bb)
+                return true;
             int color = -1;
-
             while (bb)
             {
                 int sq = lsb(bb);
                 bb &= bb - 1;
-
-                int rank = sq / 8;
-                int file = sq % 8;
-                int sq_color = (rank + file) % 2;
-
+                int sq_color = ((sq / 8) + (sq % 8)) % 2;
                 if (color == -1)
                     color = sq_color;
                 else if (color != sq_color)
                     return false;
             }
+            return true;
+        };
+
+        Bitboard white_bishops_bb = board.pieces_bb[BISHOP] & board.colors_bb[WHITE];
+        Bitboard black_bishops_bb = board.pieces_bb[BISHOP] & board.colors_bb[BLACK];
+
+        if ((white_bishops >= 2 && !all_bishops_same_color(white_bishops_bb)) ||
+            (black_bishops >= 2 && !all_bishops_same_color(black_bishops_bb)))
+        {
+            return false;
         }
 
         return true;

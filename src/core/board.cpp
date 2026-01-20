@@ -12,7 +12,18 @@ namespace chess
 
     BoardState::BoardState()
     {
-        std::memset(this, 0, sizeof(BoardState));
+        pieces_bb.fill(0);
+        colors_bb.fill(0);
+        occupied = 0;
+
+        side_to_move = WHITE;
+        castling_rights = 0;
+        en_passant_file = 8;
+        halfmove_clock = 0;
+        fullmove_number = 1;
+
+        hash = 0;
+        move_stack.top = -1;
     }
 
     void init_board(BoardState &board)
@@ -27,28 +38,30 @@ namespace chess
 
     uint8_t piece_at(const BoardState &board, uint8_t square)
     {
-        if (board.occupied & (1ULL << square))
+        Bitboard mask = 1ULL << square;
+
+        for (uint8_t type = 0; type < 6; ++type)
         {
-            for (uint8_t color = 0; color < 2; ++color)
-            {
-                for (uint8_t type = 0; type < 6; ++type)
-                {
-                    if (board.pieces_bb[type] & (1ULL << square) && board.colors_bb[color] & (1ULL << square))
-                    {
-                        return make_piece(static_cast<PieceType>(type), static_cast<Color>(color));
-                    }
-                }
-            }
+            Bitboard piece_bb = board.pieces_bb[type] & mask;
+            if (!piece_bb)
+                continue;
+
+            if (board.colors_bb[WHITE] & mask)
+                return make_piece(static_cast<PieceType>(type), WHITE);
+            if (board.colors_bb[BLACK] & mask)
+                return make_piece(static_cast<PieceType>(type), BLACK);
         }
+
         return make_piece(NONE, WHITE);
     }
 
     void place_piece(BoardState &board, uint8_t square, uint8_t piece)
     {
-
         Bitboard mask = 1ULL << square;
         PieceType type = piece_type(piece);
         Color color = piece_color(piece);
+
+        remove_piece(board, square);
 
         board.pieces_bb[type] |= mask;
         board.colors_bb[color] |= mask;
@@ -70,19 +83,15 @@ namespace chess
 
     void make_move(BoardState &board, Move move)
     {
-
         uint8_t from = move_from(move);
         uint8_t to = move_to(move);
-        uint8_t flags = move_flags(move);
         uint8_t piece = piece_at(board, from);
 
         Color color = piece_color(piece);
         PieceType type = piece_type(piece);
         Color opp_color = (color == WHITE) ? BLACK : WHITE;
 
-        int from_rank = from / 8;
         int from_file = from % 8;
-        int to_rank = to / 8;
         int to_file = to % 8;
 
         uint8_t target_piece = piece_at(board, to);
@@ -98,14 +107,19 @@ namespace chess
         board.move_stack.push(info);
 
         if (target_piece != make_piece(NONE, WHITE))
-        {
             remove_piece(board, to);
-        }
 
-        else if (type == PAWN && to_file == board.en_passant_file && ((color == WHITE && to_rank == 5) || (color == BLACK && to_rank == 2)))
+        else if (type == PAWN && board.en_passant_file < 8)
         {
-            uint8_t captured_square = (color == WHITE) ? to - 8 : to + 8;
-            remove_piece(board, captured_square);
+            int rank = to / 8;
+            if ((color == WHITE && rank == 5) || (color == BLACK && rank == 2))
+            {
+                if (to_file == board.en_passant_file)
+                {
+                    uint8_t captured_square = (color == WHITE) ? to - 8 : to + 8;
+                    remove_piece(board, captured_square);
+                }
+            }
         }
 
         remove_piece(board, from);
@@ -130,11 +144,12 @@ namespace chess
             }
         }
 
-        bool is_promotion = ((type == PAWN) && (color == WHITE && to >= 56) || (color == BLACK && to <= 7));
-
+        bool is_promotion = (type == PAWN) && ((color == WHITE && to >= 56) || (color == BLACK && to <= 7));
         if (is_promotion)
         {
             uint8_t promotion_type = move_promotion(move);
+            if (promotion_type == NONE)
+                promotion_type = QUEEN;
             uint8_t promotion_piece = make_piece(static_cast<PieceType>(promotion_type), color);
             place_piece(board, to, promotion_piece);
         }
@@ -143,14 +158,10 @@ namespace chess
             place_piece(board, to, piece);
         }
 
-        if (type == PAWN && abs(to - from) == 16)
-        {
+        if (type == PAWN && abs((int)to - (int)from) == 16)
             board.en_passant_file = from_file;
-        }
         else
-        {
             board.en_passant_file = 8;
-        }
 
         if (type == KING)
         {
@@ -170,16 +181,16 @@ namespace chess
             if (from == 63)
                 board.castling_rights &= ~CASTLE_BLACK_KING;
         }
-
         if (target_piece != make_piece(NONE, WHITE) && piece_type(target_piece) == ROOK)
         {
-            if (from == 0)
+            uint8_t to_sq = to;
+            if (to_sq == 0)
                 board.castling_rights &= ~CASTLE_WHITE_QUEEN;
-            if (from == 7)
+            if (to_sq == 7)
                 board.castling_rights &= ~CASTLE_WHITE_KING;
-            if (from == 56)
+            if (to_sq == 56)
                 board.castling_rights &= ~CASTLE_BLACK_QUEEN;
-            if (from == 63)
+            if (to_sq == 63)
                 board.castling_rights &= ~CASTLE_BLACK_KING;
         }
 
@@ -189,51 +200,85 @@ namespace chess
 
     void unmake_move(BoardState &board, Move move)
     {
-
         UndoInfo info = board.move_stack.pop();
 
         uint8_t from = move_from(move);
         uint8_t to = move_to(move);
+
+        board.side_to_move = opposite_color(board.side_to_move);
+        Color color = board.side_to_move;
+
         uint8_t piece = piece_at(board, to);
-        Color color = piece_color(piece);
+        PieceType type = piece_type(piece);
+
+        bool was_promotion =
+            type != PAWN &&
+            ((color == WHITE && to >= 56) || (color == BLACK && to <= 7));
 
         remove_piece(board, to);
-        place_piece(board, from, piece);
 
-        if (info.captured_piece != make_piece(NONE, WHITE))
+        if (was_promotion)
+            place_piece(board, from, make_piece(PAWN, color));
+        else
+            place_piece(board, from, piece);
+
+        if (type == KING && abs((to % 8) - (from % 8)) == 2)
+        {
+            if (to > from)
+            {
+                uint8_t rook_from = from + 1;
+                uint8_t rook_to = from + 3;
+                remove_piece(board, rook_from);
+                place_piece(board, rook_to, make_piece(ROOK, color));
+            }
+            else
+            {
+                uint8_t rook_from = from - 1;
+                uint8_t rook_to = from - 4;
+                remove_piece(board, rook_from);
+                place_piece(board, rook_to, make_piece(ROOK, color));
+            }
+        }
+
+        bool was_en_passant =
+            type == PAWN &&
+            (from % 8 != to % 8) &&
+            info.captured_piece == make_piece(NONE, WHITE) &&
+            info.en_passant_file == (to % 8);
+
+        if (was_en_passant)
+        {
+            if (was_en_passant)
+            {
+                uint8_t cap_sq = (color == WHITE) ? to - 8 : to + 8;
+                place_piece(board, cap_sq, make_piece(PAWN, opposite_color(color)));
+            }
+        }
+        else if (info.captured_piece != make_piece(NONE, WHITE))
+        {
             place_piece(board, to, info.captured_piece);
+        }
 
         board.castling_rights = info.castling_rights;
         board.en_passant_file = info.en_passant_file;
         board.halfmove_clock = info.halfmove_clock;
         board.hash = info.hash;
-
-        board.side_to_move = opposite_color(color);
     }
 
     Bitboard get_pawn_attacks(uint8_t square, Color color)
     {
-
-        Bitboard attacks = 0;
         Bitboard bb = 1ULL << square;
 
         if (color == WHITE)
         {
-            if ((bb & 0xFEFEFEFEFEFEFEFEULL) != 0)
-                attacks |= bb << 7;
-            if ((bb & 0x7F7F7F7F7F7F7F7FULL) != 0)
-                attacks |= bb << 9;
+            return ((bb & 0xFEFEFEFEFEFEFEFEULL) << 7) |
+                   ((bb & 0x7F7F7F7F7F7F7F7FULL) << 9);
         }
         else
         {
-            if ((bb & 0xFEFEFEFEFEFEFEFEULL) != 0)
-                attacks |= bb >> 9;
-
-            if ((bb & 0x7F7F7F7F7F7F7F7FULL) != 0)
-                attacks |= bb >> 7;
+            return ((bb & 0x7F7F7F7F7F7F7F7FULL) >> 7) |
+                   ((bb & 0xFEFEFEFEFEFEFEFEULL) >> 9);
         }
-
-        return attacks;
     }
 
     Bitboard get_knight_attacks(uint8_t square)
@@ -467,11 +512,11 @@ namespace chess
         return count - 1;
     }
 
-    Bitboard pop_lsb(Bitboard &bb)
+    int pop_lsb(Bitboard &bb)
     {
-        Bitboard lsb_square = bb & -bb;
-        bb ^= lsb_square;
-        return lsb_square;
+        int sq = lsb(bb);
+        bb &= bb - 1;
+        return sq;
     }
 
 } // namespace chess

@@ -8,6 +8,8 @@
 #include <stdexcept>
 #include <iostream>
 
+// uvi trqq se dobavq za windows
+
 namespace chess
 {
 

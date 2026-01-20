@@ -80,9 +80,9 @@ namespace chess
     constexpr Bitboard clear_bit(Bitboard bb, uint8_t sq) { return bb & ~square_bb(sq); }
 
     int pop_count(Bitboard bb);
-    int lsb(Bitboard bb);           // Least significant bit
-    int msb(Bitboard bb);           // Most significant bit
-    Bitboard pop_lsb(Bitboard &bb); // Extract and clear LSB
+    int lsb(Bitboard bb);      // Least significant bit
+    int msb(Bitboard bb);      // Most significant bit
+    int pop_lsb(Bitboard &bb); // Extract and clear LSB
 
     void init_board(BoardState &board);
     void reset_board(BoardState &board);

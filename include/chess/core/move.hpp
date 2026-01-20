@@ -13,6 +13,8 @@ namespace chess
     // Bits 6-11: to square (0-63)
     // Bits 12-13: promotion piece type (0-3 mapped to N,B,R,Q)
     // Bits 14-15: special move flags (castle, en passant, etc)
+    struct BoardState;
+
     using Move = uint16_t;
 
     constexpr uint16_t MOVE_NONE = 0;
