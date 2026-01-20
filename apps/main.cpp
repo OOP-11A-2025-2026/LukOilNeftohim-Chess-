@@ -4,6 +4,7 @@
 #include "chess/parser/fen.hpp"
 #include "chess/parser/san.hpp"
 #include "chess/ui/render.hpp"
+#include "chess/ui/input.hpp"
 #include <iostream>
 #include <string>
 #include <vector>
@@ -53,6 +54,9 @@ int main(int argc, char *argv[])
 
     int move_count = 0;
     bool pending_draw_offer = false;
+    
+    // Initialize input handler
+    InputHandler input_handler;
 
     // Game loop
     while (true)
@@ -100,140 +104,100 @@ int main(int argc, char *argv[])
         }
 
         // Get user input
-        std::cout << MAGENTA << (board->side_to_move == WHITE ? "White" : "Black");
-        std::cout << CYAN << " ▶ Enter move (or 'help'/'quit'/'flip'/'draw'/'resign'): " << RESET;
+        std::string prompt = MAGENTA;
+        prompt += (board->side_to_move == WHITE ? "White" : "Black");
+        prompt += CYAN;
+        prompt += " ▶ Enter move: ";
+        prompt += RESET;
+        
+        UserInput user_input = input_handler.get_input(prompt);
 
-        std::string input;
-        std::getline(std::cin, input);
-
-        // Trim whitespace
-        input.erase(0, input.find_first_not_of(" \t\n\r"));
-        input.erase(input.find_last_not_of(" \t\n\r") + 1);
-
-        if (input.empty())
-            continue;
-
-        // Handle special commands
-        if (input == "quit" || input == "q")
-        {
-            std::cout << YELLOW << "Thanks for playing!\n"
-                      << RESET;
-            break;
-        }
-
-        if (input == "resign" || input == "r")
-        {
-            std::string player = board->side_to_move == WHITE ? "White" : "Black";
-            std::string opponent = board->side_to_move == WHITE ? "Black" : "White";
-
-            std::cout << RED << player << " wants to resign.\n"
-                      << RESET;
-            std::cout << GREEN << opponent << " wins!\n"
-                      << RESET;
-            break;
-        }
-
-        if (input == "draw" || input == "d")
-        {
-            if (pending_draw_offer)
-            {
-                // Same player offering draw again - cancel offer
-                std::cout << YELLOW << "✓ Draw offer cancelled\n"
-                          << RESET;
-                pending_draw_offer = false;
+        // Handle different input commands
+        switch (user_input.command) {
+            case InputCommand::QUIT:
+                std::cout << YELLOW << "Thanks for playing!\n" << RESET;
+                std::cout << CYAN << "Game ended after " << move_count << " moves.\n" << RESET;
+                return 0;
+            
+            case InputCommand::HELP:
+                show_help();
                 continue;
+            
+            case InputCommand::FLIP_BOARD:
+                render_opts.flip_board = !render_opts.flip_board;
+                std::cout << YELLOW << (render_opts.flip_board ? "Board flipped (Black's perspective)\n" : "Board flipped (White's perspective)\n") << RESET;
+                continue;
+            
+            case InputCommand::RESIGN: {
+                std::string player = board->side_to_move == WHITE ? "White" : "Black";
+                std::string opponent = board->side_to_move == WHITE ? "Black" : "White";
+                std::cout << RED << player << " resigns.\n" << RESET;
+                std::cout << GREEN << opponent << " wins!\n" << RESET;
+                std::cout << CYAN << "Game ended after " << move_count << " moves.\n" << RESET;
+                return 0;
             }
-
-            // Offer draw to opponent
-            std::string offering_player = board->side_to_move == WHITE ? "White" : "Black";
-            std::string opponent = board->side_to_move == WHITE ? "Black" : "White";
-
-            std::cout << CYAN << offering_player << " offers a draw.\n"
-                      << RESET;
-            std::cout << MAGENTA << opponent << " ▶ Do you accept the draw? (yes/no): " << RESET;
-
-            std::string response;
-            std::getline(std::cin, response);
-
-            // Trim response
-            response.erase(0, response.find_first_not_of(" \t\n\r"));
-            response.erase(response.find_last_not_of(" \t\n\r") + 1);
-
-            if (response == "yes" || response == "y")
-            {
-                std::cout << GREEN << "✓ Draw accepted. Game ends in a draw.\n"
-                          << RESET;
+            
+            case InputCommand::DRAW_OFFER: {
+                if (pending_draw_offer) {
+                    std::cout << YELLOW << "✓ Draw offer cancelled\n" << RESET;
+                    pending_draw_offer = false;
+                    continue;
+                }
+                
+                std::string offering_player = board->side_to_move == WHITE ? "White" : "Black";
+                std::string opponent = board->side_to_move == WHITE ? "Black" : "White";
+                
+                std::cout << CYAN << offering_player << " offers a draw.\n" << RESET;
+                std::cout << MAGENTA << opponent << " ▶ Accept? (yes/no): " << RESET;
+                
+                std::string response;
+                std::getline(std::cin, response);
+                response = InputHandler::trim(response);
+                
+                if (response == "yes" || response == "y") {
+                    std::cout << GREEN << "✓ Draw accepted. Game ends in a draw.\n" << RESET;
+                    std::cout << CYAN << "Game ended after " << move_count << " moves.\n" << RESET;
+                    return 0;
+                } else if (response == "no" || response == "n") {
+                    std::cout << RED << "✗ Draw offer rejected.\n" << RESET;
+                    pending_draw_offer = false;
+                    continue;
+                } else {
+                    std::cout << YELLOW << "Invalid response. Draw offer remains pending.\n" << RESET;
+                    pending_draw_offer = true;
+                    continue;
+                }
+            }
+            
+            case InputCommand::MOVE: {
+                pending_draw_offer = false;
+                
+                // Try to parse move
+                auto move = parse_san(*board, user_input.move_notation);
+                
+                if (!move) {
+                    std::cout << RED << "✗ Invalid move format. Type 'help' for examples.\n" << RESET;
+                    continue;
+                }
+                
+                if (!is_legal_move(*board, *move)) {
+                    std::cout << RED << "✗ Illegal move!\n" << RESET;
+                    continue;
+                }
+                
+                // Make the move
+                render_opts.last_move = *move;
+                make_move(*board, *move);
+                move_count++;
+                
+                std::cout << GREEN << "✓ Move accepted\n" << RESET;
                 break;
             }
-            else if (response == "no" || response == "n")
-            {
-                std::cout << RED << "✗ Draw offer rejected.\n"
-                          << RESET;
-                pending_draw_offer = false;
+            
+            case InputCommand::INVALID:
+                std::cout << RED << "✗ Invalid input. Type 'help' for command list.\n" << RESET;
                 continue;
-            }
-            else
-            {
-                std::cout << YELLOW << "Invalid response. Draw offer remains pending.\n"
-                          << RESET;
-                pending_draw_offer = true;
-                continue;
-            }
         }
-
-        if (input == "help" || input == "h")
-        {
-            std::cout << "\n"
-                      << CYAN << "Move Format (SAN - Standard Algebraic Notation):\n"
-                      << RESET;
-            std::cout << "  " << GREEN << "e4" << RESET << "        - Pawn to e4\n";
-            std::cout << "  " << GREEN << "Nf3" << RESET << "       - Knight to f3\n";
-            std::cout << "  " << GREEN << "Bc4" << RESET << "       - Bishop to c4\n";
-            std::cout << "  " << GREEN << "Qh5" << RESET << "       - Queen to h5\n";
-            std::cout << "  " << GREEN << "Ra1" << RESET << "       - Rook to a1\n";
-            std::cout << "  " << GREEN << "Kg1" << RESET << "       - King to g1\n";
-            std::cout << "  " << GREEN << "exd5" << RESET << "      - Capture (pawn on e captures on d5)\n";
-            std::cout << "  " << GREEN << "Nxe5" << RESET << "      - Knight captures on e5\n";
-            std::cout << "  " << GREEN << "e8=Q" << RESET << "      - Promotion (pawn to Queen)\n";
-            std::cout << "  " << GREEN << "O-O" << RESET << "       - Castling kingside\n";
-            std::cout << "  " << GREEN << "O-O-O" << RESET << "     - Castling queenside\n\n";
-            continue;
-        }
-
-        if (input == "flip")
-        {
-            render_opts.flip_board = !render_opts.flip_board;
-            std::cout << YELLOW << (render_opts.flip_board ? "Board flipped (Black's perspective)\n" : "Board flipped (White's perspective)\n") << RESET;
-            continue;
-        }
-
-        // Clear pending draw offer when making a move
-        pending_draw_offer = false;
-
-        // Try to parse move
-        auto move = parse_san(*board, input);
-
-        if (!move)
-        {
-            std::cout << RED << "✗ Invalid move format. Type 'help' for examples.\n"
-                      << RESET;
-            continue;
-        }
-
-        if (!is_legal_move(*board, *move))
-        {
-            std::cout << RED << "✗ Illegal move!\n"
-                      << RESET;
-            continue;
-        }
-
-        // Make the move
-        render_opts.last_move = *move;
-        make_move(*board, *move);
-        move_count++;
-
-        std::cout << GREEN << "✓ Move accepted\n"
-                  << RESET;
     }
 
     std::cout << CYAN << "Game ended after " << move_count << " moves.\n"

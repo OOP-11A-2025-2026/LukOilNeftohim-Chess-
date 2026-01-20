@@ -6,6 +6,8 @@
 
 namespace chess
 {
+    // Forward declaration
+    struct BoardState;
 
     // Bits 0-5: from square (0-63)
     // Bits 6-11: to square (0-63)
@@ -29,9 +31,6 @@ namespace chess
     constexpr uint8_t move_to(Move m) { return (m >> 6) & 0x3F; }
     constexpr uint8_t move_promotion(Move m) { return (m >> 12) & 0x3; }
     constexpr uint8_t move_flags(Move m) { return (m >> 14) & 0x3; }
-
-    std::string move_to_string(const BoardState &board, Move m);
-    Move string_to_move(const BoardState &board, const std::string &str);
 
 } // namespace chess
 

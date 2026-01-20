@@ -5,6 +5,7 @@
 #include "move.hpp"
 #include <cstdint>
 #include <array>
+#include <optional>
 
 namespace chess
 {
@@ -101,6 +102,9 @@ namespace chess
     bool is_square_attacked(const BoardState &board, uint8_t square, Color by_color);
     bool is_in_check(const BoardState &board);
     uint64_t compute_hash(const BoardState &board);
+
+    std::string move_to_string(const BoardState &board, Move m);
+    Move string_to_move(const BoardState &board, const std::string &str);
 
 } // namespace chess
 

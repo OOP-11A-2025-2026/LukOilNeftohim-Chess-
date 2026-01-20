@@ -192,7 +192,6 @@ namespace chess
 
         UndoInfo info = board.move_stack.pop();
 
-        Move move = info.move;
         uint8_t from = move_from(move);
         uint8_t to = move_to(move);
         uint8_t piece = piece_at(board, to);

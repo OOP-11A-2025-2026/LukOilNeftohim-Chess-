@@ -136,7 +136,7 @@ namespace chess
         uint8_t from = move_from(move);
         uint8_t to = move_to(move);
 
-        if (!(board.occupied) & (1ULL << from))
+        if (!(board.occupied & (1ULL << from)))
             return false;
 
         uint8_t piece = piece_at(board, from);
