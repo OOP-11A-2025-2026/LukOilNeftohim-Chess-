@@ -31,8 +31,11 @@ namespace chess
 
     constexpr uint8_t move_from(Move m) { return m & 0x3F; }
     constexpr uint8_t move_to(Move m) { return (m >> 6) & 0x3F; }
-    constexpr uint8_t move_promotion(Move m) { return (m >> 12) & 0x3; }
+    constexpr uint8_t move_promotion(Move m) { return (m >> 12) & 0x7; }
     constexpr uint8_t move_flags(Move m) { return (m >> 14) & 0x3; }
+
+    int square_from_str(const std::string &sq);
+    std::string square_to_str(int sq);
 
 } // namespace chess
 

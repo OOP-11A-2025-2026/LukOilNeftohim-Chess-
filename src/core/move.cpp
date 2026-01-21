@@ -1,71 +1,102 @@
 #include "chess/core/move.hpp"
-#include "chess/core/piece.hpp"
 #include "chess/core/board.hpp"
 #include "chess/core/rules.hpp"
-
 #include <vector>
-#include <iostream>
 
 namespace chess
 {
 
-    std::string move_to_string(const BoardState &board, Move m)
+    int square_from_str(const std::string &sq)
     {
+        if (sq.length() < 2)
+            return -1;
+        return (sq[1] - '1') * 8 + (sq[0] - 'a');
+    }
 
-        uint8_t to = move_to(m);
-        uint8_t from = move_from(m);
-        uint8_t flags = move_flags(m);
-        uint8_t promotion = move_promotion(m);
+    std::string square_to_str(int sq)
+    {
+        if (sq < 0 || sq > 63)
+            return "??";
+        char file = 'a' + (sq % 8);
+        char rank = '1' + (sq / 8);
+        return std::string{file, rank};
+    }
 
-        uint8_t piece = piece_at(board, from);
-        PieceType pt = piece_type(piece);
+    std::string move_to_string(const BoardState &, Move m)
+    {
+        if (m == 0)
+            return "0000";
 
-        auto sq = [](uint8_t square)
+        int from = move_from(m);
+        int to = move_to(m);
+
+        auto to_algebraic = [](int sq)
         {
-            char file = 'a' + (square & 7);
-            char rank = '1' + (square >> 3);
-
-            return std::string() + file + rank;
+            char file = 'a' + (sq % 8);
+            char rank = '1' + (sq / 8);
+            return std::string{file, rank};
         };
 
-        if (pt == KING && abs((from & 7) - (to & 7)) == 2)
-            return (to > from) ? "O-O" : "O-O-O";
+        std::string s = to_algebraic(from) + to_algebraic(to);
 
-        bool is_capture = piece_at(board, to) != make_piece(NONE, WHITE);
-
-        std::string result;
-
-        if (pt == PAWN)
+        uint8_t promo = move_promotion(m);
+        if (promo != 0)
         {
-            if (is_capture)
+            switch (promo)
             {
-                result += char('a' + (from & 7));
-                result += 'x';
+            case KNIGHT:
+                s += 'n';
+                break;
+            case BISHOP:
+                s += 'b';
+                break;
+            case ROOK:
+                s += 'r';
+                break;
+            case QUEEN:
+                s += 'q';
+                break;
+            default:
+                break;
             }
-            result += sq(to);
+        }
 
-            if (promotion)
-                result += "NBRQ"[promotion];
-        }
-        else
-        {
-            result += piece_to_char(piece);
-            if (is_capture)
-                result += 'x';
-            result += sq(to);
-        }
-        return result;
+        return s;
     }
 
     Move string_to_move(const BoardState &board, const std::string &str)
     {
+        if (str.length() < 4)
+            return 0;
+
+        int from = square_from_str(str.substr(0, 2));
+        int to = square_from_str(str.substr(2, 2));
+
+        uint8_t promo_type = 0;
+        if (str.length() == 5)
+        {
+            char p = str[4];
+            if (p == 'n')
+                promo_type = KNIGHT;
+            else if (p == 'b')
+                promo_type = BISHOP;
+            else if (p == 'r')
+                promo_type = ROOK;
+            else if (p == 'q')
+                promo_type = QUEEN;
+        }
+
         std::vector<Move> moves;
         generate_legal_moves(board, moves);
 
         for (const Move &m : moves)
         {
-            if (move_to_string(board, m) == str)
+            if (move_from(m) == from && move_to(m) == to)
+            {
+                if (promo_type != 0 && move_promotion(m) != promo_type)
+                    continue;
                 return m;
+            }
         }
         return 0;
     }

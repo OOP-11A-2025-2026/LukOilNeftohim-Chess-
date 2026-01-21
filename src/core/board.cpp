@@ -26,9 +26,31 @@ namespace chess
         move_stack.top = -1;
     }
 
+    void set_starting_position(BoardState &board)
+    {
+        reset_board(board);
+
+        PieceType back_rank[] = {ROOK, KNIGHT, BISHOP, QUEEN, KING, BISHOP, KNIGHT, ROOK};
+
+        for (int file = 0; file < 8; ++file)
+        {
+            place_piece(board, file, make_piece(back_rank[file], WHITE));
+            place_piece(board, 8 + file, make_piece(PAWN, WHITE));
+
+            place_piece(board, 48 + file, make_piece(PAWN, BLACK));
+            place_piece(board, 56 + file, make_piece(back_rank[file], BLACK));
+        }
+
+        board.side_to_move = WHITE;
+        board.castling_rights = CASTLE_WHITE_KING | CASTLE_WHITE_QUEEN |
+                                CASTLE_BLACK_KING | CASTLE_BLACK_QUEEN;
+        board.en_passant_file = 8;
+        board.hash = compute_hash(board);
+    }
+
     void init_board(BoardState &board)
     {
-        board = BoardState();
+        set_starting_position(board);
     }
 
     void reset_board(BoardState &board)
@@ -477,26 +499,14 @@ namespace chess
 
     int pop_count(Bitboard bb)
     {
-        int count = 0;
-        while (bb)
-        {
-            count += bb & 1;
-            bb >>= 1;
-        }
-        return count;
+        return __builtin_popcountll(bb);
     }
 
     int lsb(Bitboard bb)
     {
         if (bb == 0)
             return -1;
-        int count = 0;
-        while ((bb & 1) == 0)
-        {
-            count++;
-            bb >>= 1;
-        }
-        return count;
+        return __builtin_ctzll(bb);
     }
 
     int msb(Bitboard bb)

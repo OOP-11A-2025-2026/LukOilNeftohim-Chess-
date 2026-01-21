@@ -86,6 +86,7 @@ namespace chess
 
     void init_board(BoardState &board);
     void reset_board(BoardState &board);
+    void set_starting_position(BoardState &board);
     uint8_t piece_at(const BoardState &board, uint8_t square);
     void place_piece(BoardState &board, uint8_t square, uint8_t piece);
     void remove_piece(BoardState &board, uint8_t square);
