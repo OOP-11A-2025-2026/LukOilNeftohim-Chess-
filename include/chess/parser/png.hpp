@@ -24,9 +24,12 @@ struct PGNGame {
 
 std::vector<PGNGame> parse_pgn_file(const std::string& content);
 std::optional<PGNGame> parse_single_pgn(const std::string& content);
+std::vector<PGNGame> parse_pgn_from_file(const std::string& filename);
 
 std::string game_to_pgn(const PGNGame& game);
 std::string moves_to_pgn(const BoardState& initial_board, const std::vector<Move>& moves);
+void save_pgn_to_file(const std::string& filename, const PGNGame& game);
+void save_pgn_games_to_file(const std::string& filename, const std::vector<PGNGame>& games);
 
 } // namespace chess
 

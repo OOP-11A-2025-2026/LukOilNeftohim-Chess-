@@ -37,6 +37,7 @@ std::vector<std::string> readFile(std::string filename, std::string &game_specs)
 
         game_specs += tmp + '\n';
     }
+
     while (file >> tmp)
     {
 
@@ -53,6 +54,10 @@ std::vector<std::string> readFile(std::string filename, std::string &game_specs)
             }
             moves.push_back(temp2);
             temp2 = "";
+            continue;
+        }
+        if (tmp[0] == '{')
+        {
             continue;
         }
 
