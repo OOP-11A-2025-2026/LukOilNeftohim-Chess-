@@ -1,206 +1,186 @@
-#include "chess/core/board.hpp"
-#include "chess/core/rules.hpp"
-#include "chess/engine/search.hpp"
-#include "chess/parser/fen.hpp"
-#include "chess/parser/san.hpp"
-#include "chess/ui/render.hpp"
-#include "chess/ui/input.hpp"
 #include <iostream>
-#include <string>
 #include <vector>
+#include <string>
+#include <array>
+#include <cstdint>
+#include <algorithm>
 
-using namespace chess;
+using namespace std;
 
-// ANSI colors
-constexpr const char *RESET = "\033[0m";
-constexpr const char *BOLD = "\033[1m";
-constexpr const char *GREEN = "\033[92m";
-constexpr const char *RED = "\033[91m";
-constexpr const char *YELLOW = "\033[93m";
-constexpr const char *CYAN = "\033[96m";
-constexpr const char *MAGENTA = "\033[95m";
-
-int main(int argc, char *argv[])
+// --- TYPES & CONSTANTS ---
+typedef uint64_t Bitboard;
+enum Color
 {
+    WHITE,
+    BLACK,
+    BOTH
+};
+enum PieceType
+{
+    PAWN,
+    KNIGHT,
+    BISHOP,
+    ROOK,
+    QUEEN,
+    KING,
+    NONE
+};
 
-    /*
-        Linux - sudo apt install stockfish
-        Mac - brew install stockfish
-        Windows - Go to https://stockfishchess.org/download/
+// Move encoding: From (6 bits), To (6 bits), Promotion (4 bits)
+typedef uint16_t Move;
+#define MOVE_NONE 0
+inline Move create_move(int f, int t) { return (f & 0x3F) | ((t & 0x3F) << 6); }
+inline int get_from(Move m) { return m & 0x3F; }
+inline int get_to(Move m) { return (m >> 6) & 0x3F; }
 
-        chess::UCIEngine engine;
-        engine.start("/usr/local/bin/stockfish"); // or wherever stockfish is
-        engine.new_game();
+// --- BOARD STRUCTURE ---
+struct BoardState
+{
+    Bitboard pieces_bb[6] = {0};
+    Bitboard colors_bb[2] = {0};
+    Bitboard occupied = 0;
+    Color side_to_move = WHITE;
 
-        Move best = engine.get_bestmove(board, 10);
-        make_move(board, best);
-    */
-
-    // Initialize board
-    auto board = parse_fen(STARTING_FEN);
-    if (!board)
+    // Simple Square to Piece lookup
+    PieceType get_piece_at(int sq)
     {
-        std::cerr << RED << "Error: Failed to initialize board\n"
-                  << RESET;
-        return 1;
+        Bitboard mask = 1ULL << sq;
+        for (int i = 0; i < 6; i++)
+        {
+            if (pieces_bb[i] & mask)
+                return (PieceType)i;
+        }
+        return NONE;
+    }
+};
+
+// --- CORE LOGIC ---
+void place_piece(BoardState &b, int sq, PieceType type, Color c)
+{
+    Bitboard mask = 1ULL << sq;
+    b.pieces_bb[type] |= mask;
+    b.colors_bb[c] |= mask;
+    b.occupied |= mask;
+}
+
+void init_board(BoardState &b)
+{
+    // Pawns
+    for (int i = 0; i < 8; i++)
+    {
+        place_piece(b, 8 + i, PAWN, WHITE);
+        place_piece(b, 48 + i, PAWN, BLACK);
+    }
+    // Pieces (Simplified indices for demonstration)
+    PieceType back_rank[] = {ROOK, KNIGHT, BISHOP, QUEEN, KING, BISHOP, KNIGHT, ROOK};
+    for (int i = 0; i < 8; i++)
+    {
+        place_piece(b, i, back_rank[i], WHITE);
+        place_piece(b, 56 + i, back_rank[i], BLACK);
+    }
+}
+
+// Simple Move Execution
+void make_move(BoardState &b, Move m)
+{
+    int from = get_from(m);
+    int to = get_to(m);
+    PieceType p = b.get_piece_at(from);
+    Color c = (b.colors_bb[WHITE] & (1ULL << from)) ? WHITE : BLACK;
+
+    // Clear from
+    b.pieces_bb[p] &= ~(1ULL << from);
+    b.colors_bb[c] &= ~(1ULL << from);
+
+    // Clear destination (capture)
+    PieceType captured = b.get_piece_at(to);
+    if (captured != NONE)
+    {
+        b.pieces_bb[captured] &= ~(1ULL << to);
+        b.colors_bb[1 - c] &= ~(1ULL << to);
     }
 
-    RenderOptions render_opts;
-    render_opts.use_unicode = true;
-    render_opts.show_coordinates = true;
-    render_opts.flip_board = false;
-    render_opts.highlight_last_move = true;
-    render_opts.last_move = MOVE_NONE;
+    // Place on to
+    b.pieces_bb[p] |= (1ULL << to);
+    b.colors_bb[c] |= (1ULL << to);
+    b.occupied = b.colors_bb[WHITE] | b.colors_bb[BLACK];
+    b.side_to_move = (b.side_to_move == WHITE) ? BLACK : WHITE;
+}
 
-    int move_count = 0;
-    bool pending_draw_offer = false;
-    
-    // Initialize input handler
-    InputHandler input_handler;
+// --- UTILS & UI ---
+void render_board(BoardState &b)
+{
+    const char *symbols[] = {"P", "N", "B", "R", "Q", "K"};
+    const char *symbols_black[] = {"p", "n", "b", "r", "q", "k"};
 
-    // Game loop
+    cout << "\n  a b c d e f g h\n";
+    for (int r = 7; r >= 0; r--)
+    {
+        cout << r + 1 << " ";
+        for (int f = 0; f < 8; f++)
+        {
+            int sq = r * 8 + f;
+            PieceType p = b.get_piece_at(sq);
+            if (p == NONE)
+                cout << ". ";
+            else
+            {
+                if (b.colors_bb[WHITE] & (1ULL << sq))
+                    cout << symbols[p] << " ";
+                else
+                    cout << symbols_black[p] << " ";
+            }
+        }
+        cout << r + 1 << "\n";
+    }
+    cout << "  a b c d e f g h\n\n";
+}
+
+Move parse_input(string input)
+{
+    if (input.length() < 4)
+        return MOVE_NONE;
+    int f = (input[0] - 'a') + (input[1] - '1') * 8;
+    int t = (input[2] - 'a') + (input[3] - '1') * 8;
+    if (f < 0 || f > 63 || t < 0 || t > 63)
+        return MOVE_NONE;
+    return create_move(f, t);
+}
+
+// --- MAIN LOOP ---
+int main()
+{
+    BoardState board;
+    init_board(board);
+    string input;
+
+    cout << "Chess Engine CLI (Enter moves like 'e2e4' or 'quit')\n";
+
     while (true)
     {
-        // Render the board
-        render_board(*board, render_opts);
+        render_board(board);
+        cout << (board.side_to_move == WHITE ? "White" : "Black") << " to move: ";
+        cin >> input;
 
-        // Show pending draw offer
-        if (pending_draw_offer)
-        {
-            std::cout << YELLOW << "⚠ Draw offer is pending\n"
-                      << RESET;
-        }
-
-        // Check game result
-        auto result = check_game_result(*board);
-        if (result != IN_PROGRESS)
-        {
-            std::cout << BOLD << GREEN << "Game Over! ";
-            switch (result)
-            {
-            case WHITE_WINS:
-                std::cout << "White Wins!\n";
-                break;
-            case BLACK_WINS:
-                std::cout << "Black Wins!\n";
-                break;
-            case DRAW_STALEMATE:
-                std::cout << "Draw by Stalemate\n";
-                break;
-            case DRAW_INSUFFICIENT:
-                std::cout << "Draw by Insufficient Material\n";
-                break;
-            case DRAW_FIFTY_MOVE:
-                std::cout << "Draw by 50-Move Rule\n";
-                break;
-            case DRAW_REPETITION:
-                std::cout << "Draw by Repetition\n";
-                break;
-            default:
-                std::cout << "Draw\n";
-            }
-            std::cout << RESET << "\n";
+        if (input == "quit")
             break;
+
+        Move m = parse_input(input);
+        if (m == MOVE_NONE)
+        {
+            cout << "Invalid format! Use 'e2e4'.\n";
+            continue;
         }
 
-        // Get user input
-        std::string prompt = MAGENTA;
-        prompt += (board->side_to_move == WHITE ? "White" : "Black");
-        prompt += CYAN;
-        prompt += " ▶ Enter move: ";
-        prompt += RESET;
-        
-        UserInput user_input = input_handler.get_input(prompt);
-
-        // Handle different input commands
-        switch (user_input.command) {
-            case InputCommand::QUIT:
-                std::cout << YELLOW << "Thanks for playing!\n" << RESET;
-                std::cout << CYAN << "Game ended after " << move_count << " moves.\n" << RESET;
-                return 0;
-            
-            case InputCommand::HELP:
-                show_help();
-                continue;
-            
-            case InputCommand::FLIP_BOARD:
-                render_opts.flip_board = !render_opts.flip_board;
-                std::cout << YELLOW << (render_opts.flip_board ? "Board flipped (Black's perspective)\n" : "Board flipped (White's perspective)\n") << RESET;
-                continue;
-            
-            case InputCommand::RESIGN: {
-                std::string player = board->side_to_move == WHITE ? "White" : "Black";
-                std::string opponent = board->side_to_move == WHITE ? "Black" : "White";
-                std::cout << RED << player << " resigns.\n" << RESET;
-                std::cout << GREEN << opponent << " wins!\n" << RESET;
-                std::cout << CYAN << "Game ended after " << move_count << " moves.\n" << RESET;
-                return 0;
-            }
-            
-            case InputCommand::DRAW_OFFER: {
-                if (pending_draw_offer) {
-                    std::cout << YELLOW << "✓ Draw offer cancelled\n" << RESET;
-                    pending_draw_offer = false;
-                    continue;
-                }
-                
-                std::string offering_player = board->side_to_move == WHITE ? "White" : "Black";
-                std::string opponent = board->side_to_move == WHITE ? "Black" : "White";
-                
-                std::cout << CYAN << offering_player << " offers a draw.\n" << RESET;
-                std::cout << MAGENTA << opponent << " ▶ Accept? (yes/no): " << RESET;
-                
-                std::string response;
-                std::getline(std::cin, response);
-                response = InputHandler::trim(response);
-                
-                if (response == "yes" || response == "y") {
-                    std::cout << GREEN << "✓ Draw accepted. Game ends in a draw.\n" << RESET;
-                    std::cout << CYAN << "Game ended after " << move_count << " moves.\n" << RESET;
-                    return 0;
-                } else if (response == "no" || response == "n") {
-                    std::cout << RED << "✗ Draw offer rejected.\n" << RESET;
-                    pending_draw_offer = false;
-                    continue;
-                } else {
-                    std::cout << YELLOW << "Invalid response. Draw offer remains pending.\n" << RESET;
-                    pending_draw_offer = true;
-                    continue;
-                }
-            }
-            
-            case InputCommand::MOVE: {
-                pending_draw_offer = false;
-                
-                // Try to parse move
-                auto move = parse_san(*board, user_input.move_notation);
-                
-                if (!move) {
-                    std::cout << RED << "✗ Invalid move format. Type 'help' for examples.\n" << RESET;
-                    continue;
-                }
-                
-                if (!is_legal_move(*board, *move)) {
-                    std::cout << RED << "✗ Illegal move!\n" << RESET;
-                    continue;
-                }
-                
-                // Make the move
-                render_opts.last_move = *move;
-                make_move(*board, *move);
-                move_count++;
-                
-                std::cout << GREEN << "✓ Move accepted\n" << RESET;
-                break;
-            }
-            
-            case InputCommand::INVALID:
-                std::cout << RED << "✗ Invalid input. Type 'help' for command list.\n" << RESET;
-                continue;
+        // Basic check if a piece exists at 'from'
+        if (board.get_piece_at(get_from(m)) == NONE)
+        {
+            cout << "No piece at starting square!\n";
+            continue;
         }
+
+        make_move(board, m);
     }
 
-    std::cout << CYAN << "Game ended after " << move_count << " moves.\n"
-              << RESET;
     return 0;
 }

@@ -1,0 +1,4 @@
+/Users/martinvalentinov/Documents/GitHub/LukOilNeftohim-Chess-CPP/build/CMakeFiles/chess_core.dir
+/Users/martinvalentinov/Documents/GitHub/LukOilNeftohim-Chess-CPP/build/CMakeFiles/chess_game.dir
+/Users/martinvalentinov/Documents/GitHub/LukOilNeftohim-Chess-CPP/build/CMakeFiles/edit_cache.dir
+/Users/martinvalentinov/Documents/GitHub/LukOilNeftohim-Chess-CPP/build/CMakeFiles/rebuild_cache.dir
