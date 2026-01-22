@@ -65,11 +65,13 @@ CMAKE_BINARY_DIR = /Users/martinvalentinov/Documents/GitHub/LukOilNeftohim-Chess
 # The main recursive "all" target.
 all: CMakeFiles/chess_core.dir/all
 all: CMakeFiles/chess_game.dir/all
+all: CMakeFiles/chess_tests.dir/all
 .PHONY : all
 
 # The main recursive "codegen" target.
 codegen: CMakeFiles/chess_core.dir/codegen
 codegen: CMakeFiles/chess_game.dir/codegen
+codegen: CMakeFiles/chess_tests.dir/codegen
 .PHONY : codegen
 
 # The main recursive "preinstall" target.
@@ -79,6 +81,7 @@ preinstall:
 # The main recursive "clean" target.
 clean: CMakeFiles/chess_core.dir/clean
 clean: CMakeFiles/chess_game.dir/clean
+clean: CMakeFiles/chess_tests.dir/clean
 .PHONY : clean
 
 #=============================================================================
@@ -88,12 +91,12 @@ clean: CMakeFiles/chess_game.dir/clean
 CMakeFiles/chess_core.dir/all:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/chess_core.dir/build.make CMakeFiles/chess_core.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/chess_core.dir/build.make CMakeFiles/chess_core.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/martinvalentinov/Documents/GitHub/LukOilNeftohim-Chess-CPP/build/CMakeFiles --progress-num=1,2,3,4,5,6,7,8,9,10,11,12,13,14 "Built target chess_core"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/martinvalentinov/Documents/GitHub/LukOilNeftohim-Chess-CPP/build/CMakeFiles --progress-num=1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16 "Built target chess_core"
 .PHONY : CMakeFiles/chess_core.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/chess_core.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /Users/martinvalentinov/Documents/GitHub/LukOilNeftohim-Chess-CPP/build/CMakeFiles 14
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/martinvalentinov/Documents/GitHub/LukOilNeftohim-Chess-CPP/build/CMakeFiles 16
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/chess_core.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /Users/martinvalentinov/Documents/GitHub/LukOilNeftohim-Chess-CPP/build/CMakeFiles 0
 .PHONY : CMakeFiles/chess_core.dir/rule
@@ -105,7 +108,7 @@ chess_core: CMakeFiles/chess_core.dir/rule
 # codegen rule for target.
 CMakeFiles/chess_core.dir/codegen:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/chess_core.dir/build.make CMakeFiles/chess_core.dir/codegen
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/martinvalentinov/Documents/GitHub/LukOilNeftohim-Chess-CPP/build/CMakeFiles --progress-num=1,2,3,4,5,6,7,8,9,10,11,12,13,14 "Finished codegen for target chess_core"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/martinvalentinov/Documents/GitHub/LukOilNeftohim-Chess-CPP/build/CMakeFiles --progress-num=1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16 "Finished codegen for target chess_core"
 .PHONY : CMakeFiles/chess_core.dir/codegen
 
 # clean rule for target.
@@ -120,12 +123,12 @@ CMakeFiles/chess_core.dir/clean:
 CMakeFiles/chess_game.dir/all: CMakeFiles/chess_core.dir/all
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/chess_game.dir/build.make CMakeFiles/chess_game.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/chess_game.dir/build.make CMakeFiles/chess_game.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/martinvalentinov/Documents/GitHub/LukOilNeftohim-Chess-CPP/build/CMakeFiles --progress-num=15,16 "Built target chess_game"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/martinvalentinov/Documents/GitHub/LukOilNeftohim-Chess-CPP/build/CMakeFiles --progress-num=17,18 "Built target chess_game"
 .PHONY : CMakeFiles/chess_game.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/chess_game.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /Users/martinvalentinov/Documents/GitHub/LukOilNeftohim-Chess-CPP/build/CMakeFiles 16
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/martinvalentinov/Documents/GitHub/LukOilNeftohim-Chess-CPP/build/CMakeFiles 18
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/chess_game.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /Users/martinvalentinov/Documents/GitHub/LukOilNeftohim-Chess-CPP/build/CMakeFiles 0
 .PHONY : CMakeFiles/chess_game.dir/rule
@@ -137,13 +140,45 @@ chess_game: CMakeFiles/chess_game.dir/rule
 # codegen rule for target.
 CMakeFiles/chess_game.dir/codegen:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/chess_game.dir/build.make CMakeFiles/chess_game.dir/codegen
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/martinvalentinov/Documents/GitHub/LukOilNeftohim-Chess-CPP/build/CMakeFiles --progress-num=15,16 "Finished codegen for target chess_game"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/martinvalentinov/Documents/GitHub/LukOilNeftohim-Chess-CPP/build/CMakeFiles --progress-num=17,18 "Finished codegen for target chess_game"
 .PHONY : CMakeFiles/chess_game.dir/codegen
 
 # clean rule for target.
 CMakeFiles/chess_game.dir/clean:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/chess_game.dir/build.make CMakeFiles/chess_game.dir/clean
 .PHONY : CMakeFiles/chess_game.dir/clean
+
+#=============================================================================
+# Target rules for target CMakeFiles/chess_tests.dir
+
+# All Build rule for target.
+CMakeFiles/chess_tests.dir/all: CMakeFiles/chess_core.dir/all
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/chess_tests.dir/build.make CMakeFiles/chess_tests.dir/depend
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/chess_tests.dir/build.make CMakeFiles/chess_tests.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/martinvalentinov/Documents/GitHub/LukOilNeftohim-Chess-CPP/build/CMakeFiles --progress-num=19,20,21,22,23 "Built target chess_tests"
+.PHONY : CMakeFiles/chess_tests.dir/all
+
+# Build rule for subdir invocation for target.
+CMakeFiles/chess_tests.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/martinvalentinov/Documents/GitHub/LukOilNeftohim-Chess-CPP/build/CMakeFiles 21
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/chess_tests.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/martinvalentinov/Documents/GitHub/LukOilNeftohim-Chess-CPP/build/CMakeFiles 0
+.PHONY : CMakeFiles/chess_tests.dir/rule
+
+# Convenience name for target.
+chess_tests: CMakeFiles/chess_tests.dir/rule
+.PHONY : chess_tests
+
+# codegen rule for target.
+CMakeFiles/chess_tests.dir/codegen:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/chess_tests.dir/build.make CMakeFiles/chess_tests.dir/codegen
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/martinvalentinov/Documents/GitHub/LukOilNeftohim-Chess-CPP/build/CMakeFiles --progress-num=19,20,21,22,23 "Finished codegen for target chess_tests"
+.PHONY : CMakeFiles/chess_tests.dir/codegen
+
+# clean rule for target.
+CMakeFiles/chess_tests.dir/clean:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/chess_tests.dir/build.make CMakeFiles/chess_tests.dir/clean
+.PHONY : CMakeFiles/chess_tests.dir/clean
 
 #=============================================================================
 # Special targets to cleanup operation of make.

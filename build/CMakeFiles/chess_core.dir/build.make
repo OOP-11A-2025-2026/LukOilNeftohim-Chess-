@@ -254,6 +254,34 @@ CMakeFiles/chess_core.dir/src/storage/storage.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/chess_core.dir/src/storage/storage.cpp.s"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/martinvalentinov/Documents/GitHub/LukOilNeftohim-Chess-CPP/src/storage/storage.cpp -o CMakeFiles/chess_core.dir/src/storage/storage.cpp.s
 
+CMakeFiles/chess_core.dir/src/ui/input.cpp.o: CMakeFiles/chess_core.dir/flags.make
+CMakeFiles/chess_core.dir/src/ui/input.cpp.o: /Users/martinvalentinov/Documents/GitHub/LukOilNeftohim-Chess-CPP/src/ui/input.cpp
+CMakeFiles/chess_core.dir/src/ui/input.cpp.o: CMakeFiles/chess_core.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/martinvalentinov/Documents/GitHub/LukOilNeftohim-Chess-CPP/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_14) "Building CXX object CMakeFiles/chess_core.dir/src/ui/input.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/chess_core.dir/src/ui/input.cpp.o -MF CMakeFiles/chess_core.dir/src/ui/input.cpp.o.d -o CMakeFiles/chess_core.dir/src/ui/input.cpp.o -c /Users/martinvalentinov/Documents/GitHub/LukOilNeftohim-Chess-CPP/src/ui/input.cpp
+
+CMakeFiles/chess_core.dir/src/ui/input.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/chess_core.dir/src/ui/input.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/martinvalentinov/Documents/GitHub/LukOilNeftohim-Chess-CPP/src/ui/input.cpp > CMakeFiles/chess_core.dir/src/ui/input.cpp.i
+
+CMakeFiles/chess_core.dir/src/ui/input.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/chess_core.dir/src/ui/input.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/martinvalentinov/Documents/GitHub/LukOilNeftohim-Chess-CPP/src/ui/input.cpp -o CMakeFiles/chess_core.dir/src/ui/input.cpp.s
+
+CMakeFiles/chess_core.dir/src/ui/render.cpp.o: CMakeFiles/chess_core.dir/flags.make
+CMakeFiles/chess_core.dir/src/ui/render.cpp.o: /Users/martinvalentinov/Documents/GitHub/LukOilNeftohim-Chess-CPP/src/ui/render.cpp
+CMakeFiles/chess_core.dir/src/ui/render.cpp.o: CMakeFiles/chess_core.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/martinvalentinov/Documents/GitHub/LukOilNeftohim-Chess-CPP/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_15) "Building CXX object CMakeFiles/chess_core.dir/src/ui/render.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/chess_core.dir/src/ui/render.cpp.o -MF CMakeFiles/chess_core.dir/src/ui/render.cpp.o.d -o CMakeFiles/chess_core.dir/src/ui/render.cpp.o -c /Users/martinvalentinov/Documents/GitHub/LukOilNeftohim-Chess-CPP/src/ui/render.cpp
+
+CMakeFiles/chess_core.dir/src/ui/render.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/chess_core.dir/src/ui/render.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/martinvalentinov/Documents/GitHub/LukOilNeftohim-Chess-CPP/src/ui/render.cpp > CMakeFiles/chess_core.dir/src/ui/render.cpp.i
+
+CMakeFiles/chess_core.dir/src/ui/render.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/chess_core.dir/src/ui/render.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/martinvalentinov/Documents/GitHub/LukOilNeftohim-Chess-CPP/src/ui/render.cpp -o CMakeFiles/chess_core.dir/src/ui/render.cpp.s
+
 # Object files for target chess_core
 chess_core_OBJECTS = \
 "CMakeFiles/chess_core.dir/src/core/board.cpp.o" \
@@ -268,7 +296,9 @@ chess_core_OBJECTS = \
 "CMakeFiles/chess_core.dir/src/parser/san.cpp.o" \
 "CMakeFiles/chess_core.dir/src/storage/file_reader.cpp.o" \
 "CMakeFiles/chess_core.dir/src/storage/file_writer.cpp.o" \
-"CMakeFiles/chess_core.dir/src/storage/storage.cpp.o"
+"CMakeFiles/chess_core.dir/src/storage/storage.cpp.o" \
+"CMakeFiles/chess_core.dir/src/ui/input.cpp.o" \
+"CMakeFiles/chess_core.dir/src/ui/render.cpp.o"
 
 # External object files for target chess_core
 chess_core_EXTERNAL_OBJECTS =
@@ -286,9 +316,11 @@ libchess_core.a: CMakeFiles/chess_core.dir/src/parser/san.cpp.o
 libchess_core.a: CMakeFiles/chess_core.dir/src/storage/file_reader.cpp.o
 libchess_core.a: CMakeFiles/chess_core.dir/src/storage/file_writer.cpp.o
 libchess_core.a: CMakeFiles/chess_core.dir/src/storage/storage.cpp.o
+libchess_core.a: CMakeFiles/chess_core.dir/src/ui/input.cpp.o
+libchess_core.a: CMakeFiles/chess_core.dir/src/ui/render.cpp.o
 libchess_core.a: CMakeFiles/chess_core.dir/build.make
 libchess_core.a: CMakeFiles/chess_core.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/Users/martinvalentinov/Documents/GitHub/LukOilNeftohim-Chess-CPP/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_14) "Linking CXX static library libchess_core.a"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/Users/martinvalentinov/Documents/GitHub/LukOilNeftohim-Chess-CPP/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_16) "Linking CXX static library libchess_core.a"
 	$(CMAKE_COMMAND) -P CMakeFiles/chess_core.dir/cmake_clean_target.cmake
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/chess_core.dir/link.txt --verbose=$(VERBOSE)
 

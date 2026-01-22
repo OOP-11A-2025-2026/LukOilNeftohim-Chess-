@@ -69,15 +69,3 @@ std::vector<std::string> readFile(std::string filename, std::string &game_specs)
 
     return moves;
 }
-
-int main()
-{
-    std::string game_specs;
-    std::vector<std::string> moves = readFile("test.txt", game_specs);
-    std::cout << game_specs;
-    for (const std::string &x : moves)
-    {
-        std::cout << x << '\n';
-    }
-    return 0;
-}

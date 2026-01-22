@@ -21,6 +21,8 @@ set(CMAKE_DEPENDS_DEPENDENCY_FILES
   "/Users/martinvalentinov/Documents/GitHub/LukOilNeftohim-Chess-CPP/src/storage/file_reader.cpp" "CMakeFiles/chess_core.dir/src/storage/file_reader.cpp.o" "gcc" "CMakeFiles/chess_core.dir/src/storage/file_reader.cpp.o.d"
   "/Users/martinvalentinov/Documents/GitHub/LukOilNeftohim-Chess-CPP/src/storage/file_writer.cpp" "CMakeFiles/chess_core.dir/src/storage/file_writer.cpp.o" "gcc" "CMakeFiles/chess_core.dir/src/storage/file_writer.cpp.o.d"
   "/Users/martinvalentinov/Documents/GitHub/LukOilNeftohim-Chess-CPP/src/storage/storage.cpp" "CMakeFiles/chess_core.dir/src/storage/storage.cpp.o" "gcc" "CMakeFiles/chess_core.dir/src/storage/storage.cpp.o.d"
+  "/Users/martinvalentinov/Documents/GitHub/LukOilNeftohim-Chess-CPP/src/ui/input.cpp" "CMakeFiles/chess_core.dir/src/ui/input.cpp.o" "gcc" "CMakeFiles/chess_core.dir/src/ui/input.cpp.o.d"
+  "/Users/martinvalentinov/Documents/GitHub/LukOilNeftohim-Chess-CPP/src/ui/render.cpp" "CMakeFiles/chess_core.dir/src/ui/render.cpp.o" "gcc" "CMakeFiles/chess_core.dir/src/ui/render.cpp.o.d"
   )
 
 # Targets to which this target links which contain Fortran sources.

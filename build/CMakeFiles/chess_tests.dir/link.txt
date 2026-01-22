@@ -1,0 +1,1 @@
+/usr/bin/c++  -arch arm64 -Wl,-search_paths_first -Wl,-headerpad_max_install_names CMakeFiles/chess_tests.dir/tests/catch2/catch_amalgamated.cpp.o CMakeFiles/chess_tests.dir/tests/core/engine_test.cpp.o CMakeFiles/chess_tests.dir/tests/engine/uci_test.cpp.o CMakeFiles/chess_tests.dir/tests/storage/storage_test.cpp.o -o chess_tests  libchess_core.a

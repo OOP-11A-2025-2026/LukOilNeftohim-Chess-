@@ -65,6 +65,16 @@ CMAKE_BINARY_DIR = /Users/martinvalentinov/Documents/GitHub/LukOilNeftohim-Chess
 #=============================================================================
 # Targets provided globally by CMake.
 
+# Special rule for the target test
+test:
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Running tests..."
+	/opt/homebrew/bin/ctest $(ARGS)
+.PHONY : test
+
+# Special rule for the target test
+test/fast: test
+.PHONY : test/fast
+
 # Special rule for the target edit_cache
 edit_cache:
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Running CMake cache editor..."
@@ -141,6 +151,19 @@ chess_game: cmake_check_build_system
 chess_game/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/chess_game.dir/build.make CMakeFiles/chess_game.dir/build
 .PHONY : chess_game/fast
+
+#=============================================================================
+# Target rules for targets named chess_tests
+
+# Build rule for target.
+chess_tests: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 chess_tests
+.PHONY : chess_tests
+
+# fast build rule for target.
+chess_tests/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/chess_tests.dir/build.make CMakeFiles/chess_tests.dir/build
+.PHONY : chess_tests/fast
 
 apps/main.o: apps/main.cpp.o
 .PHONY : apps/main.o
@@ -478,6 +501,150 @@ src/storage/storage.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/chess_core.dir/build.make CMakeFiles/chess_core.dir/src/storage/storage.cpp.s
 .PHONY : src/storage/storage.cpp.s
 
+src/ui/input.o: src/ui/input.cpp.o
+.PHONY : src/ui/input.o
+
+# target to build an object file
+src/ui/input.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/chess_core.dir/build.make CMakeFiles/chess_core.dir/src/ui/input.cpp.o
+.PHONY : src/ui/input.cpp.o
+
+src/ui/input.i: src/ui/input.cpp.i
+.PHONY : src/ui/input.i
+
+# target to preprocess a source file
+src/ui/input.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/chess_core.dir/build.make CMakeFiles/chess_core.dir/src/ui/input.cpp.i
+.PHONY : src/ui/input.cpp.i
+
+src/ui/input.s: src/ui/input.cpp.s
+.PHONY : src/ui/input.s
+
+# target to generate assembly for a file
+src/ui/input.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/chess_core.dir/build.make CMakeFiles/chess_core.dir/src/ui/input.cpp.s
+.PHONY : src/ui/input.cpp.s
+
+src/ui/render.o: src/ui/render.cpp.o
+.PHONY : src/ui/render.o
+
+# target to build an object file
+src/ui/render.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/chess_core.dir/build.make CMakeFiles/chess_core.dir/src/ui/render.cpp.o
+.PHONY : src/ui/render.cpp.o
+
+src/ui/render.i: src/ui/render.cpp.i
+.PHONY : src/ui/render.i
+
+# target to preprocess a source file
+src/ui/render.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/chess_core.dir/build.make CMakeFiles/chess_core.dir/src/ui/render.cpp.i
+.PHONY : src/ui/render.cpp.i
+
+src/ui/render.s: src/ui/render.cpp.s
+.PHONY : src/ui/render.s
+
+# target to generate assembly for a file
+src/ui/render.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/chess_core.dir/build.make CMakeFiles/chess_core.dir/src/ui/render.cpp.s
+.PHONY : src/ui/render.cpp.s
+
+tests/catch2/catch_amalgamated.o: tests/catch2/catch_amalgamated.cpp.o
+.PHONY : tests/catch2/catch_amalgamated.o
+
+# target to build an object file
+tests/catch2/catch_amalgamated.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/chess_tests.dir/build.make CMakeFiles/chess_tests.dir/tests/catch2/catch_amalgamated.cpp.o
+.PHONY : tests/catch2/catch_amalgamated.cpp.o
+
+tests/catch2/catch_amalgamated.i: tests/catch2/catch_amalgamated.cpp.i
+.PHONY : tests/catch2/catch_amalgamated.i
+
+# target to preprocess a source file
+tests/catch2/catch_amalgamated.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/chess_tests.dir/build.make CMakeFiles/chess_tests.dir/tests/catch2/catch_amalgamated.cpp.i
+.PHONY : tests/catch2/catch_amalgamated.cpp.i
+
+tests/catch2/catch_amalgamated.s: tests/catch2/catch_amalgamated.cpp.s
+.PHONY : tests/catch2/catch_amalgamated.s
+
+# target to generate assembly for a file
+tests/catch2/catch_amalgamated.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/chess_tests.dir/build.make CMakeFiles/chess_tests.dir/tests/catch2/catch_amalgamated.cpp.s
+.PHONY : tests/catch2/catch_amalgamated.cpp.s
+
+tests/core/engine_test.o: tests/core/engine_test.cpp.o
+.PHONY : tests/core/engine_test.o
+
+# target to build an object file
+tests/core/engine_test.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/chess_tests.dir/build.make CMakeFiles/chess_tests.dir/tests/core/engine_test.cpp.o
+.PHONY : tests/core/engine_test.cpp.o
+
+tests/core/engine_test.i: tests/core/engine_test.cpp.i
+.PHONY : tests/core/engine_test.i
+
+# target to preprocess a source file
+tests/core/engine_test.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/chess_tests.dir/build.make CMakeFiles/chess_tests.dir/tests/core/engine_test.cpp.i
+.PHONY : tests/core/engine_test.cpp.i
+
+tests/core/engine_test.s: tests/core/engine_test.cpp.s
+.PHONY : tests/core/engine_test.s
+
+# target to generate assembly for a file
+tests/core/engine_test.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/chess_tests.dir/build.make CMakeFiles/chess_tests.dir/tests/core/engine_test.cpp.s
+.PHONY : tests/core/engine_test.cpp.s
+
+tests/engine/uci_test.o: tests/engine/uci_test.cpp.o
+.PHONY : tests/engine/uci_test.o
+
+# target to build an object file
+tests/engine/uci_test.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/chess_tests.dir/build.make CMakeFiles/chess_tests.dir/tests/engine/uci_test.cpp.o
+.PHONY : tests/engine/uci_test.cpp.o
+
+tests/engine/uci_test.i: tests/engine/uci_test.cpp.i
+.PHONY : tests/engine/uci_test.i
+
+# target to preprocess a source file
+tests/engine/uci_test.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/chess_tests.dir/build.make CMakeFiles/chess_tests.dir/tests/engine/uci_test.cpp.i
+.PHONY : tests/engine/uci_test.cpp.i
+
+tests/engine/uci_test.s: tests/engine/uci_test.cpp.s
+.PHONY : tests/engine/uci_test.s
+
+# target to generate assembly for a file
+tests/engine/uci_test.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/chess_tests.dir/build.make CMakeFiles/chess_tests.dir/tests/engine/uci_test.cpp.s
+.PHONY : tests/engine/uci_test.cpp.s
+
+tests/storage/storage_test.o: tests/storage/storage_test.cpp.o
+.PHONY : tests/storage/storage_test.o
+
+# target to build an object file
+tests/storage/storage_test.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/chess_tests.dir/build.make CMakeFiles/chess_tests.dir/tests/storage/storage_test.cpp.o
+.PHONY : tests/storage/storage_test.cpp.o
+
+tests/storage/storage_test.i: tests/storage/storage_test.cpp.i
+.PHONY : tests/storage/storage_test.i
+
+# target to preprocess a source file
+tests/storage/storage_test.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/chess_tests.dir/build.make CMakeFiles/chess_tests.dir/tests/storage/storage_test.cpp.i
+.PHONY : tests/storage/storage_test.cpp.i
+
+tests/storage/storage_test.s: tests/storage/storage_test.cpp.s
+.PHONY : tests/storage/storage_test.s
+
+# target to generate assembly for a file
+tests/storage/storage_test.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/chess_tests.dir/build.make CMakeFiles/chess_tests.dir/tests/storage/storage_test.cpp.s
+.PHONY : tests/storage/storage_test.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -486,8 +653,10 @@ help:
 	@echo "... depend"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
+	@echo "... test"
 	@echo "... chess_core"
 	@echo "... chess_game"
+	@echo "... chess_tests"
 	@echo "... apps/main.o"
 	@echo "... apps/main.i"
 	@echo "... apps/main.s"
@@ -530,6 +699,24 @@ help:
 	@echo "... src/storage/storage.o"
 	@echo "... src/storage/storage.i"
 	@echo "... src/storage/storage.s"
+	@echo "... src/ui/input.o"
+	@echo "... src/ui/input.i"
+	@echo "... src/ui/input.s"
+	@echo "... src/ui/render.o"
+	@echo "... src/ui/render.i"
+	@echo "... src/ui/render.s"
+	@echo "... tests/catch2/catch_amalgamated.o"
+	@echo "... tests/catch2/catch_amalgamated.i"
+	@echo "... tests/catch2/catch_amalgamated.s"
+	@echo "... tests/core/engine_test.o"
+	@echo "... tests/core/engine_test.i"
+	@echo "... tests/core/engine_test.s"
+	@echo "... tests/engine/uci_test.o"
+	@echo "... tests/engine/uci_test.i"
+	@echo "... tests/engine/uci_test.s"
+	@echo "... tests/storage/storage_test.o"
+	@echo "... tests/storage/storage_test.i"
+	@echo "... tests/storage/storage_test.s"
 .PHONY : help
 
 

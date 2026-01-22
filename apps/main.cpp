@@ -1,181 +1,188 @@
 #include <iostream>
 #include <vector>
 #include <string>
-#include <array>
-#include <cstdint>
-#include <algorithm>
+#include <sstream>
+#include "chess/core/board.hpp"
+#include "chess/core/move.hpp"
+#include "chess/core/piece.hpp"
+#include "chess/core/rules.hpp"
 
-using namespace std;
+using namespace chess;
 
-// --- TYPES & CONSTANTS ---
-typedef uint64_t Bitboard;
-enum Color
+// Convert square index (0-63) to algebraic notation (a1-h8)
+std::string square_to_notation(uint8_t sq)
 {
-    WHITE,
-    BLACK,
-    BOTH
-};
-enum PieceType
-{
-    PAWN,
-    KNIGHT,
-    BISHOP,
-    ROOK,
-    QUEEN,
-    KING,
-    NONE
-};
-
-// Move encoding: From (6 bits), To (6 bits), Promotion (4 bits)
-typedef uint16_t Move;
-#define MOVE_NONE 0
-inline Move create_move(int f, int t) { return (f & 0x3F) | ((t & 0x3F) << 6); }
-inline int get_from(Move m) { return m & 0x3F; }
-inline int get_to(Move m) { return (m >> 6) & 0x3F; }
-
-// --- BOARD STRUCTURE ---
-struct BoardState
-{
-    Bitboard pieces_bb[6] = {0};
-    Bitboard colors_bb[2] = {0};
-    Bitboard occupied = 0;
-    Color side_to_move = WHITE;
-
-    // Simple Square to Piece lookup
-    PieceType get_piece_at(int sq)
-    {
-        Bitboard mask = 1ULL << sq;
-        for (int i = 0; i < 6; i++)
-        {
-            if (pieces_bb[i] & mask)
-                return (PieceType)i;
-        }
-        return NONE;
-    }
-};
-
-// --- CORE LOGIC ---
-void place_piece(BoardState &b, int sq, PieceType type, Color c)
-{
-    Bitboard mask = 1ULL << sq;
-    b.pieces_bb[type] |= mask;
-    b.colors_bb[c] |= mask;
-    b.occupied |= mask;
+    char file = 'a' + (sq % 8);
+    char rank = '1' + (sq / 8);
+    return std::string(1, file) + std::string(1, rank);
 }
 
-void init_board(BoardState &b)
+// Convert algebraic notation to square index
+uint8_t notation_to_square(const std::string &notation)
 {
-    // Pawns
-    for (int i = 0; i < 8; i++)
-    {
-        place_piece(b, 8 + i, PAWN, WHITE);
-        place_piece(b, 48 + i, PAWN, BLACK);
-    }
-    // Pieces (Simplified indices for demonstration)
-    PieceType back_rank[] = {ROOK, KNIGHT, BISHOP, QUEEN, KING, BISHOP, KNIGHT, ROOK};
-    for (int i = 0; i < 8; i++)
-    {
-        place_piece(b, i, back_rank[i], WHITE);
-        place_piece(b, 56 + i, back_rank[i], BLACK);
-    }
+    if (notation.length() != 2)
+        return 255;
+    uint8_t file = notation[0] - 'a';
+    uint8_t rank = notation[1] - '1';
+    if (file > 7 || rank > 7)
+        return 255;
+    return rank * 8 + file;
 }
 
-// Simple Move Execution
-void make_move(BoardState &b, Move m)
+// Parse input like "e2e4" or "e2 e4"
+Move parse_move_input(const std::string &input, const BoardState &board)
 {
-    int from = get_from(m);
-    int to = get_to(m);
-    PieceType p = b.get_piece_at(from);
-    Color c = (b.colors_bb[WHITE] & (1ULL << from)) ? WHITE : BLACK;
+    std::string from_str, to_str;
 
-    // Clear from
-    b.pieces_bb[p] &= ~(1ULL << from);
-    b.colors_bb[c] &= ~(1ULL << from);
-
-    // Clear destination (capture)
-    PieceType captured = b.get_piece_at(to);
-    if (captured != NONE)
+    if (input.find(' ') != std::string::npos)
     {
-        b.pieces_bb[captured] &= ~(1ULL << to);
-        b.colors_bb[1 - c] &= ~(1ULL << to);
+        std::istringstream iss(input);
+        iss >> from_str >> to_str;
+    }
+    else if (input.length() == 4)
+    {
+        from_str = input.substr(0, 2);
+        to_str = input.substr(2, 2);
+    }
+    else
+    {
+        return MOVE_NONE;
     }
 
-    // Place on to
-    b.pieces_bb[p] |= (1ULL << to);
-    b.colors_bb[c] |= (1ULL << to);
-    b.occupied = b.colors_bb[WHITE] | b.colors_bb[BLACK];
-    b.side_to_move = (b.side_to_move == WHITE) ? BLACK : WHITE;
+    uint8_t from = notation_to_square(from_str);
+    uint8_t to = notation_to_square(to_str);
+
+    if (from == 255 || to == 255)
+        return MOVE_NONE;
+
+    return make_move(from, to);
 }
 
-// --- UTILS & UI ---
-void render_board(BoardState &b)
+// Render board in standard orientation
+void render_board(const BoardState &board)
 {
-    const char *symbols[] = {"P", "N", "B", "R", "Q", "K"};
-    const char *symbols_black[] = {"p", "n", "b", "r", "q", "k"};
-
-    cout << "\n  a b c d e f g h\n";
+    std::cout << "\n  a b c d e f g h\n";
     for (int r = 7; r >= 0; r--)
     {
-        cout << r + 1 << " ";
+        std::cout << (r + 1) << " ";
         for (int f = 0; f < 8; f++)
         {
-            int sq = r * 8 + f;
-            PieceType p = b.get_piece_at(sq);
-            if (p == NONE)
-                cout << ". ";
+            uint8_t sq = r * 8 + f;
+            uint8_t piece = piece_at(board, sq);
+
+            if (piece_type(piece) == NONE)
+                std::cout << ". ";
             else
             {
-                if (b.colors_bb[WHITE] & (1ULL << sq))
-                    cout << symbols[p] << " ";
-                else
-                    cout << symbols_black[p] << " ";
+                char c = piece_to_char(piece);
+                std::cout << c << " ";
             }
         }
-        cout << r + 1 << "\n";
+        std::cout << (r + 1) << "\n";
     }
-    cout << "  a b c d e f g h\n\n";
+    std::cout << "  a b c d e f g h\n\n";
 }
 
-Move parse_input(string input)
-{
-    if (input.length() < 4)
-        return MOVE_NONE;
-    int f = (input[0] - 'a') + (input[1] - '1') * 8;
-    int t = (input[2] - 'a') + (input[3] - '1') * 8;
-    if (f < 0 || f > 63 || t < 0 || t > 63)
-        return MOVE_NONE;
-    return create_move(f, t);
-}
-
-// --- MAIN LOOP ---
 int main()
 {
     BoardState board;
-    init_board(board);
-    string input;
+    set_starting_position(board);
+    std::string input;
 
-    cout << "Chess Engine CLI (Enter moves like 'e2e4' or 'quit')\n";
+    std::cout << "Chess Engine CLI\n";
+    std::cout << "Enter moves like 'e2e4' or 'e2 e4' or 'quit' to exit\n";
+    std::cout << "Type 'moves' to see all legal moves\n";
+    std::cout << "Type 'fen' to see FEN position\n\n";
 
     while (true)
     {
         render_board(board);
-        cout << (board.side_to_move == WHITE ? "White" : "Black") << " to move: ";
-        cin >> input;
+
+        // Check game status
+        GameResult result = check_game_result(board);
+        if (result == WHITE_WINS)
+        {
+            std::cout << "Game Over: Black is Checkmate - White Wins!\n";
+            break;
+        }
+        else if (result == BLACK_WINS)
+        {
+            std::cout << "Game Over: White is Checkmate - Black Wins!\n";
+            break;
+        }
+        else if (result == DRAW_STALEMATE)
+        {
+            std::cout << "Game Over: Stalemate - Draw!\n";
+            break;
+        }
+
+        if (is_checkmate(board))
+        {
+            std::cout << "Checkmate!\n";
+            break;
+        }
+        else if (is_in_check(board))
+        {
+            std::cout << "Check!\n";
+        }
+
+        std::cout << (board.side_to_move == WHITE ? "White" : "Black") << " to move: ";
+        std::getline(std::cin, input);
+
+        // Trim whitespace
+        input.erase(0, input.find_first_not_of(" \t\n\r\f\v"));
+        input.erase(input.find_last_not_of(" \t\n\r\f\v") + 1);
+
+        if (input.empty())
+            continue;
 
         if (input == "quit")
             break;
 
-        Move m = parse_input(input);
-        if (m == MOVE_NONE)
+        if (input == "moves")
         {
-            cout << "Invalid format! Use 'e2e4'.\n";
+            std::vector<Move> legal_moves;
+            generate_legal_moves(board, legal_moves);
+            std::cout << "Legal moves: ";
+            for (const Move &m : legal_moves)
+            {
+                std::cout << square_to_notation(move_from(m)) << square_to_notation(move_to(m)) << " ";
+            }
+            std::cout << "\n";
             continue;
         }
 
-        // Basic check if a piece exists at 'from'
-        if (board.get_piece_at(get_from(m)) == NONE)
+        if (input == "fen")
         {
-            cout << "No piece at starting square!\n";
+            std::cout << "FEN: (not implemented)\n";
+            continue;
+        }
+
+        Move m = parse_move_input(input, board);
+        if (m == MOVE_NONE)
+        {
+            std::cout << "Invalid format! Use 'e2e4' or 'e2 e4'.\n";
+            continue;
+        }
+
+        // Check if move is legal
+        std::vector<Move> legal_moves;
+        generate_legal_moves(board, legal_moves);
+
+        bool move_found = false;
+        for (const Move &legal_move : legal_moves)
+        {
+            if (move_from(legal_move) == move_from(m) && move_to(legal_move) == move_to(m))
+            {
+                move_found = true;
+                m = legal_move;
+                break;
+            }
+        }
+
+        if (!move_found)
+        {
+            std::cout << "Illegal move! Type 'moves' to see legal moves.\n";
             continue;
         }
 

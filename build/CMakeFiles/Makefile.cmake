@@ -146,4 +146,5 @@ set(CMAKE_MAKEFILE_PRODUCTS
 set(CMAKE_DEPEND_INFO_FILES
   "CMakeFiles/chess_core.dir/DependInfo.cmake"
   "CMakeFiles/chess_game.dir/DependInfo.cmake"
+  "CMakeFiles/chess_tests.dir/DependInfo.cmake"
   )

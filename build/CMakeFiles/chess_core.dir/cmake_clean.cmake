@@ -25,6 +25,10 @@ file(REMOVE_RECURSE
   "CMakeFiles/chess_core.dir/src/storage/file_writer.cpp.o.d"
   "CMakeFiles/chess_core.dir/src/storage/storage.cpp.o"
   "CMakeFiles/chess_core.dir/src/storage/storage.cpp.o.d"
+  "CMakeFiles/chess_core.dir/src/ui/input.cpp.o"
+  "CMakeFiles/chess_core.dir/src/ui/input.cpp.o.d"
+  "CMakeFiles/chess_core.dir/src/ui/render.cpp.o"
+  "CMakeFiles/chess_core.dir/src/ui/render.cpp.o.d"
   "libchess_core.a"
   "libchess_core.pdb"
 )
